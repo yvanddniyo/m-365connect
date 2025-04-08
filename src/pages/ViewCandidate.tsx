@@ -9,7 +9,7 @@ interface Candidate {
 }
 const ViewCandidate = () => {
     const [candidates, setCandidates] = useState<Candidate[]>([])
-    const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([])
+    const [filteredCandidates, setFilteredCandidates] = useState<Candidate[] | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [openRole, setOpenRole] = useState(false)
     const [openExperience, setOpenExperience] = useState(false)
@@ -17,7 +17,8 @@ const ViewCandidate = () => {
     const [activeRoleFilter, setActiveRoleFilter] = useState('')
     const [activeExperienceFilter, setActiveExperienceFilter] = useState('')
     const [activeStackFilter, setActiveStackFilter] = useState('')
-    const [editingCandidate, setEditingCandidate] = useState(null)
+    const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null)
+    const [editingIndex, setEditingIndex] = useState<number | null>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
 
@@ -86,12 +87,12 @@ const ViewCandidate = () => {
         setSearchQuery('')
     }
 
-    // Delete candidate
     const handleDelete = (index: number) => {
+        if (!filteredCandidates) return;
+        
         if (window.confirm('Are you sure you want to delete this candidate?')) {
             const candidateToDelete = filteredCandidates[index];
             
-            // Find the index in the original candidates array
             const originalIndex = candidates.findIndex(c => 
                 c.name === candidateToDelete.name && 
                 c.job_role === candidateToDelete.job_role &&
@@ -102,50 +103,47 @@ const ViewCandidate = () => {
                 const updatedCandidates = [...candidates];
                 updatedCandidates.splice(originalIndex, 1);
                 
-                // Update state and localStorage
                 setCandidates(updatedCandidates);
                 localStorage.setItem('candidates', JSON.stringify(updatedCandidates));
             }
         }
     }
 
-    // Open edit modal with candidate data
     const handleEdit = (index: number) => {
-        setEditingCandidate({...filteredCandidates[index], index});
+        if (!filteredCandidates) return;
+        
+        setEditingCandidate({...filteredCandidates[index]});
+        setEditingIndex(index);
         setIsEditModalOpen(true);
     }
 
-    // Save edited candidate
     const handleSaveEdit = () => {
-        if (!editingCandidate) return;
+        if (!editingCandidate || !filteredCandidates || editingIndex === null) return;
         
-        // Find the index in the original candidates array
         const originalIndex = candidates.findIndex(c => 
-            c.name === filteredCandidates[editingCandidate.index].name && 
-            c.job_role === filteredCandidates[editingCandidate.index].job_role &&
-            c.github === filteredCandidates[editingCandidate.index].github
+            c.name === filteredCandidates[editingIndex].name && 
+            c.job_role === filteredCandidates[editingIndex].job_role &&
+            c.github === filteredCandidates[editingIndex].github
         );
         
         if (originalIndex !== -1) {
             const updatedCandidates = [...candidates];
             
-            // Remove index property before saving
-            const { index, ...candidateToSave } = editingCandidate;
+            const { ...candidateToSave } = editingCandidate;
             
             updatedCandidates[originalIndex] = candidateToSave;
             
-            // Update state and localStorage
             setCandidates(updatedCandidates);
             localStorage.setItem('candidates', JSON.stringify(updatedCandidates));
             
-            // Close modal
             setIsEditModalOpen(false);
             setEditingCandidate(null);
         }
     }
 
-    // Handle input changes in edit form
     const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        if (!editingCandidate) return;
+        
         const { name, value } = e.target;
         setEditingCandidate({
             ...editingCandidate,
@@ -153,8 +151,9 @@ const ViewCandidate = () => {
         });
     }
 
-    // Handle skills input changes (comma-separated)
     const handleSkillsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!editingCandidate) return;
+        
         const skillsArray = e.target.value.split(',').map(skill => skill.trim());
         setEditingCandidate({
             ...editingCandidate,
@@ -229,7 +228,7 @@ const ViewCandidate = () => {
             )}
         </div>
         <div className="grid grid-cols-3 gap-4 ">
-            {filteredCandidates.length > 0 ? filteredCandidates.map((item, index) => (
+            { filteredCandidates && filteredCandidates?.length > 0 ? filteredCandidates?.map((item, index) => (
             <div key={index} className="flex flex-col gap-2 border border-white p-4 rounded-tr-xl rounded-bl-xl relative">
                 <h1>Name: {item.name}</h1>
                 <h1>Job Role: {item.job_role}</h1>
@@ -257,7 +256,7 @@ const ViewCandidate = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
+
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-gray-800 p-6 rounded-tr-xl rounded-bl-xl w-1/2 max-h-[90vh] overflow-y-auto">
