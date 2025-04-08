@@ -119,10 +119,10 @@ const App = () => {
             <button type='submit' className='bg-white text-black p-2 rounded-tr-xl rounded-bl-xl hover:bg-gray-200 px-4 cursor-pointer'> {loading ? 'Loading...' : 'Submit'}</button>
           </div>
         </form>
-        <Link to="/view-candidate">
-        <button className='bg-white text-black p-2 rounded-tr-xl rounded-bl-xl hover:bg-gray-200 px-4 cursor-pointer mt-32 mx-auto'>
+        <Link to="/view-candidate" className='flex justify-center'>
+        <button className='bg-white text-black p-2 rounded-tr-xl rounded-bl-xl hover:bg-gray-200 px-4 cursor-pointer mt-32 mx-auto j'>
         View Candidate
-    </button>
+        </button>
     </Link>
        </div>
      </div>

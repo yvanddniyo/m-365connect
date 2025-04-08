@@ -104,7 +104,7 @@ const ViewCandidate = () => {
                 updatedCandidates.splice(originalIndex, 1);
                 
                 setCandidates(updatedCandidates);
-                localStorage.setItem('candidates', JSON.stringify(updatedCandidates));
+                localStorage.setItem('formData', JSON.stringify(updatedCandidates));
             }
         }
     }
@@ -134,7 +134,7 @@ const ViewCandidate = () => {
             updatedCandidates[originalIndex] = candidateToSave;
             
             setCandidates(updatedCandidates);
-            localStorage.setItem('candidates', JSON.stringify(updatedCandidates));
+            localStorage.setItem('formData', JSON.stringify(updatedCandidates));
             
             setIsEditModalOpen(false);
             setEditingCandidate(null);
